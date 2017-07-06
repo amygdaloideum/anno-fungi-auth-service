@@ -2,8 +2,8 @@ import * as bcrypt from 'bcrypt-nodejs';
 import * as crypto from 'crypto';
 import * as mongoose from 'mongoose';
 
-export type UserModel = mongoose.Document & {
-  email: string;
+export type AccountModel = mongoose.Document & {
+  username: string;
   password: string;
   passwordResetToken: string;
   passwordResetExpires: Date;
@@ -27,8 +27,8 @@ export type AuthToken = {
   kind: string;
 };
 
-const userSchema = new mongoose.Schema({
-  email: { type: String, unique: true },
+const accountSchema = new mongoose.Schema({
+  username: { type: String, unique: true },
   password: String,
   passwordResetToken: String,
   passwordResetExpires: Date,
@@ -50,24 +50,24 @@ const userSchema = new mongoose.Schema({
 /**
  * Password hash middleware.
  */
-userSchema.pre('save', function save(this: any, next: Function): void {
-  const user = this;
-  if (!user.isModified('password')) { return next(); }
+accountSchema.pre('save', function save(this: any, next: Function): void {
+  const account = this;
+  if (!account.isModified('password')) { return next(); }
   bcrypt.genSalt(10, (err, salt) => {
     if (err) { return next(err); }
-    bcrypt.hash(user.password, salt, ()=>{}, (err: mongoose.Error, hash) => {
+    bcrypt.hash(account.password, salt, ()=>{}, (err: mongoose.Error, hash) => {
       if (err) { return next(err); }
-      user.password = hash;
+      account.password = hash;
       next();
     });
   });
 });
 
-userSchema.methods.comparePassword = function(candidatePassword: string, cb: (err: any, isMatch: any) => {}): void {
+accountSchema.methods.comparePassword = function(candidatePassword: string, cb: (err: any, isMatch: any) => {}): void {
   bcrypt.compare(candidatePassword, this.password, (err: mongoose.Error , isMatch: boolean) => {
     cb(err, isMatch);
   });
 };
 
-// export const User: UserType = mongoose.model<UserType>('User', userSchema);
-export const User = mongoose.model('User', userSchema);
+export const Account: mongoose.Model<AccountModel> = mongoose.model<AccountModel>('Account', accountSchema);
+//export const Account = mongoose.model('Account', accountSchema);

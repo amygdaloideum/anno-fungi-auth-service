@@ -1,0 +1,8 @@
+export const events = {
+    LOGIN: 'LOGIN',
+    LOGIN_SUCCESS: 'LOGIN_SUCCESS',
+    REGISTER: 'REGISTER',
+    REGISTER_SUCCESS: 'REGISTER_SUCCESS',
+    ERROR: 'ERROR',
+    WARNING: 'WARNING',
+};

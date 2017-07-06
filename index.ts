@@ -1,5 +1,12 @@
 import * as mongoose from 'mongoose';
+import * as socketIo from 'socket.io';
+import { ILoginRequestBody } from './src/auth.d';
+import { events } from './src/constants';
+import { register } from './src/controller/account';
 
+const PORT = 8097;
+
+// connect mongoose
 // mongoose.connect(process.env.MONGODB_URI || process.env.MONGOLAB_URI);
 mongoose.connect('mongodb://localhost/test');
 
@@ -9,8 +16,21 @@ mongoose.connection.on('error', () => {
   process.exit();
 });
 db.once('open', () => {
-  console.log('database connection established');
-  const accountSchema = new mongoose.Schema({
-    id: String
+  console.log('connected to mongoDB');
+});
+
+// setup socket.io
+
+const io = socketIo.listen(PORT);
+console.log(`server listening at port ${PORT}`);
+
+io.sockets.on('connection', socket => {
+
+  socket.on(events.LOGIN, (body: ILoginRequestBody) => {
+
+  });
+
+  socket.on(events.REGISTER, (body: ILoginRequestBody) => {
+    register(socket, body);
   });
 });
