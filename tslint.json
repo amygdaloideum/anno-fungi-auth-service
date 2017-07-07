@@ -70,7 +70,7 @@
       true,
       "always-prefix"
     ],
-    "newline-before-return": true,
+    "newline-before-return": false,
     "new-parens": true,
     "no-angle-bracket-type-assertion": true,
     "no-consecutive-blank-lines": true,

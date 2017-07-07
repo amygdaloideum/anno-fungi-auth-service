@@ -1,25 +1,13 @@
 import * as bcrypt from 'bcrypt-nodejs';
 import * as crypto from 'crypto';
+import * as cuid from 'cuid';
 import * as mongoose from 'mongoose';
 
 export type AccountModel = mongoose.Document & {
+  userId: string;
   username: string;
   password: string;
-  passwordResetToken: string;
-  passwordResetExpires: Date;
-
-  facebook: string;
-  tokens: AuthToken[];
-
-  profile: {
-    name: string;
-    gender: string;
-    location: string;
-    website: string;
-    picture: string;
-  };
-
-  comparePassword(candidatePassword: string, cb: (err: any, isMatch: any) => {}): void;
+  comparePassword(candidatePassword: string, cb: (err: any, isMatch: any) => void): void;
 };
 
 export type AuthToken = {
@@ -28,23 +16,9 @@ export type AuthToken = {
 };
 
 const accountSchema = new mongoose.Schema({
+  userId: String,
   username: { type: String, unique: true },
   password: String,
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-
-  facebook: String,
-  twitter: String,
-  google: String,
-  tokens: Array,
-
-  profile: {
-    name: String,
-    gender: String,
-    location: String,
-    website: String,
-    picture: String
-  }
 }, { timestamps: true });
 
 /**
@@ -52,6 +26,7 @@ const accountSchema = new mongoose.Schema({
  */
 accountSchema.pre('save', function save(this: any, next: Function): void {
   const account = this;
+  account.cuid = cuid();
   if (!account.isModified('password')) { return next(); }
   bcrypt.genSalt(10, (err, salt) => {
     if (err) { return next(err); }
