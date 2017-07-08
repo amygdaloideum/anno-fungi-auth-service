@@ -2,23 +2,13 @@ import * as bcrypt from 'bcrypt-nodejs';
 import * as crypto from 'crypto';
 import * as cuid from 'cuid';
 import * as mongoose from 'mongoose';
-
-export type AccountModel = mongoose.Document & {
-  userId: string;
-  username: string;
-  password: string;
-  comparePassword(candidatePassword: string, cb: (err: any, isMatch: any) => void): void;
-};
-
-export type AuthToken = {
-  accessToken: string;
-  kind: string;
-};
+import { AccountModel } from './Account.d';
 
 const accountSchema = new mongoose.Schema({
   userId: String,
   username: { type: String, unique: true },
   password: String,
+  decks: [String],
 }, { timestamps: true });
 
 /**
@@ -30,7 +20,7 @@ accountSchema.pre('save', function save(this: any, next: Function): void {
   if (!account.isModified('password')) { return next(); }
   bcrypt.genSalt(10, (err, salt) => {
     if (err) { return next(err); }
-    bcrypt.hash(account.password, salt, ()=>{}, (err: mongoose.Error, hash) => {
+    bcrypt.hash(account.password, salt, () => { }, (err: mongoose.Error, hash) => {
       if (err) { return next(err); }
       account.password = hash;
       next();
@@ -39,7 +29,7 @@ accountSchema.pre('save', function save(this: any, next: Function): void {
 });
 
 accountSchema.methods.comparePassword = function(candidatePassword: string, cb: (err: any, isMatch: any) => {}): void {
-  bcrypt.compare(candidatePassword, this.password, (err: mongoose.Error , isMatch: boolean) => {
+  bcrypt.compare(candidatePassword, this.password, (err: mongoose.Error, isMatch: boolean) => {
     cb(err, isMatch);
   });
 };

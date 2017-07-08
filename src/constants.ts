@@ -1,4 +1,5 @@
 export const events = {
+    GET_DECKS: 'GET_DECKS',
     LOGIN: 'LOGIN',
     LOGIN_SUCCESS: 'LOGIN_SUCCESS',
     REGISTER: 'REGISTER',

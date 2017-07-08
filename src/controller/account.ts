@@ -1,7 +1,7 @@
 import * as jwt from 'jsonwebtoken';
 import { ILoginRequestBody } from '../auth.d';
 import { events } from '../constants';
-import { Account } from '../models/Account';
+import { Account } from '../models/Account/Account';
 
 export const register = (socket: SocketIO.Socket, body: ILoginRequestBody) => {
   const account = new Account({
@@ -21,7 +21,7 @@ export const register = (socket: SocketIO.Socket, body: ILoginRequestBody) => {
   });
 };
 
-export const login = (socket: SocketIO.Socket, body: ILoginRequestBody) => {
+export const login = (socket: SocketIO.Socket, body: ILoginRequestBody, successCallback: Function) => {
   Account.findOne({ username: body.username }, (err, account) => {
     handleError(socket, err);
     if (!account) {
@@ -38,6 +38,7 @@ export const login = (socket: SocketIO.Socket, body: ILoginRequestBody) => {
         };
         const token = jwt.sign(tokenData, 'secret');
         socket.emit(events.LOGIN_SUCCESS, { token });
+        successCallback(token);
         console.log(`user ${account.username} signed in and recieved token ${token}`);
       }
     });

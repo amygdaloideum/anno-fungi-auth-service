@@ -1,8 +1,10 @@
 import * as mongoose from 'mongoose';
 import * as socketIo from 'socket.io';
+import { validateToken } from './src/auth';
 import { ILoginRequestBody } from './src/auth.d';
 import { events } from './src/constants';
 import { login, register } from './src/controller/account';
+import { getDecks } from './src/controller/deck';
 
 const PORT = 8097;
 
@@ -26,11 +28,19 @@ console.log(`server listening at port ${PORT}`);
 
 io.sockets.on('connection', socket => {
   console.log(`client ${socket.id} connected`);
+  const auth: { token: string } = { token: '' };
+
   socket.on(events.LOGIN, (body: ILoginRequestBody) => {
-    login(socket, body);
+    login(socket, body, (token: string) => {
+      auth.token = token;
+    });
   });
 
   socket.on(events.REGISTER, (body: ILoginRequestBody) => {
     register(socket, body);
+  });
+
+  socket.on(events.GET_DECKS, (token: string) => {
+    getDecks(socket, token);
   });
 });
